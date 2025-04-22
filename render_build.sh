@@ -11,33 +11,28 @@ pip install -r requirements.txt
 echo "=== Collecting static files ==="
 python manage.py collectstatic --noinput
 
-# Run migrations
+# Fix database issues first
+echo "=== Fixing database issues ==="
+
+# Try direct SQL fix first
+echo "Attempting direct SQL fix..."
+python direct_db_fix.py || echo "Direct SQL fix failed, trying other methods"
+
+# Then try the content type fix
+echo "Fixing content types..."
+python fix_content_types.py || echo "Failed to fix content types, but continuing anyway"
+
+# Finally try the full database initialization
+echo "Initializing database..."
+python initialize_database.py || echo "Failed to initialize database, but continuing anyway"
+
+# Run migrations after fixing the database
 echo "=== Running migrations ==="
-python manage.py migrate --noinput || echo "Migration failed, will try to fix database directly"
+python manage.py migrate --noinput || echo "Migration failed, but we'll continue with other fixes"
 
-# Attempt to fix database directly
-echo "=== Attempting to fix database directly ==="
-echo "Fixing database issues..."
-python fix_content_types.py
-python initialize_database.py
-echo "Database fix complete."
-
-# Reset chat migrations
-echo "=== Resetting chat migrations ==="
-echo "Resetting chat app migrations..."
-mkdir -p chat/migrations/backup
-cp chat/migrations/*.py chat/migrations/backup/ 2>/dev/null || true
-rm chat/migrations/*.py 2>/dev/null || true
-echo "from django.db import migrations
-
-class Migration(migrations.Migration):
-    initial = True
-    dependencies = [
-    ]
-    operations = [
-    ]
-" > chat/migrations/0001_initial.py
-echo "Chat migrations reset complete."
+# Fix chat migrations using the dedicated script
+echo "=== Fixing chat migrations ==="
+python fix_chat_migrations.py || echo "Failed to fix chat migrations, but continuing anyway"
 
 # Run custom migration script
 echo "=== Running custom migration script ==="

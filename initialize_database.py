@@ -5,32 +5,32 @@ This script will create all necessary tables and populate initial data.
 import os
 import sys
 import django
-from django.db import connection, transaction
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User, Group, Permission
-from django.utils import timezone
 
-# Set up Django
+# Set up Django first, before importing any models
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myday.settings')
 django.setup()
+
+# Now it's safe to import Django models
+from django.db import connection, transaction
+from django.utils import timezone
 
 def initialize_database():
     """Initialize the database from scratch."""
     print("Starting comprehensive database initialization...")
-    
+
     try:
         # Fix content types
         fix_content_types()
-        
+
         # Create necessary tables
         create_tables()
-        
+
         # Create initial data
         create_initial_data()
-        
+
         # Mark migrations as applied
         mark_migrations_as_applied()
-        
+
         print("Database initialization completed successfully.")
         return True
     except Exception as e:
@@ -40,31 +40,31 @@ def initialize_database():
 def fix_content_types():
     """Fix content types with null names."""
     print("Fixing content types...")
-    
+
     try:
         with connection.cursor() as cursor:
             # Check if django_content_type table exists
             cursor.execute("""
             SELECT EXISTS (
-                SELECT FROM information_schema.tables 
+                SELECT FROM information_schema.tables
                 WHERE table_name = 'django_content_type'
             );
             """)
             table_exists = cursor.fetchone()[0]
-            
+
             if table_exists:
                 # Fix null names in content types
                 cursor.execute("""
-                UPDATE django_content_type 
-                SET name = app_label || '_' || model 
+                UPDATE django_content_type
+                SET name = app_label || '_' || model
                 WHERE name IS NULL;
                 """)
                 print("Fixed null names in content types")
-                
+
                 # Ensure all models have content types
                 cursor.execute("""
                 INSERT INTO django_content_type (app_label, model, name)
-                VALUES 
+                VALUES
                     ('admin', 'logentry', 'admin_logentry'),
                     ('auth', 'permission', 'auth_permission'),
                     ('auth', 'group', 'auth_group'),
@@ -93,7 +93,7 @@ def fix_content_types():
 def create_tables():
     """Create necessary tables."""
     print("Creating necessary tables...")
-    
+
     try:
         with connection.cursor() as cursor:
             # Create events_category table
@@ -107,7 +107,7 @@ def create_tables():
             );
             """)
             print("Created events_category table")
-            
+
             # Create events_event table
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS events_event (
@@ -127,7 +127,7 @@ def create_tables():
             );
             """)
             print("Created events_event table")
-            
+
             # Create chat_chatmessage table
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS chat_chatmessage (
@@ -147,13 +147,13 @@ def create_tables():
 def create_initial_data():
     """Create initial data for the application."""
     print("Creating initial data...")
-    
+
     try:
         # Import models
         from events.models import Category, Event
         from accounts.models import UserProfile
         from django.contrib.auth.models import User
-        
+
         # Create a superuser if none exists
         if not User.objects.filter(is_superuser=True).exists():
             try:
@@ -165,7 +165,7 @@ def create_initial_data():
                 print("Created superuser 'admin'")
             except Exception as e:
                 print(f"Error creating superuser: {e}")
-        
+
         # Create event categories if none exist
         if Category.objects.count() == 0:
             try:
@@ -187,7 +187,7 @@ def create_initial_data():
                         'description': 'Gatherings for socializing and networking'
                     }
                 ]
-                
+
                 for category_data in categories:
                     Category.objects.create(
                         name=category_data['name'],
@@ -198,7 +198,7 @@ def create_initial_data():
                 print(f"Created {len(categories)} event categories")
             except Exception as e:
                 print(f"Error creating categories: {e}")
-        
+
         # Create sample events if none exist
         if Event.objects.count() == 0:
             try:
@@ -229,23 +229,23 @@ def create_initial_data():
 def mark_migrations_as_applied():
     """Mark migrations as applied."""
     print("Marking migrations as applied...")
-    
+
     try:
         with connection.cursor() as cursor:
             # Check if django_migrations table exists
             cursor.execute("""
             SELECT EXISTS (
-                SELECT FROM information_schema.tables 
+                SELECT FROM information_schema.tables
                 WHERE table_name = 'django_migrations'
             );
             """)
             table_exists = cursor.fetchone()[0]
-            
+
             if table_exists:
                 # Mark all migrations as applied
                 cursor.execute("""
                 INSERT INTO django_migrations (app, name, applied)
-                VALUES 
+                VALUES
                     ('contenttypes', '0001_initial', NOW()),
                     ('auth', '0001_initial', NOW()),
                     ('admin', '0001_initial', NOW()),
