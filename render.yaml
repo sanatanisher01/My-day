@@ -20,8 +20,16 @@ services:
         value: 3.9.18
       - key: WEB_CONCURRENCY
         value: 1
+      - key: DISABLE_COLLECTSTATIC
+        value: 0
+      - key: PYTHONUNBUFFERED
+        value: 1
+    autoDeploy: true
+    healthCheckPath: /
+    numInstances: 1
 
 databases:
   - name: myday-db
     databaseName: myday
     plan: free
+    ipAllowList: [] # only allow internal connections
