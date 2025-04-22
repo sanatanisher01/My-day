@@ -1,11 +1,21 @@
 from django.urls import path
 from . import views
 from . import manager_views
+from . import fallback_views
 
-urlpatterns = [
-    path('', views.home, name='home'),
-    path('list/', views.event_list, name='event_list'),
-    path('<slug:slug>/', views.event_detail, name='event_detail'),
+# Try to import the models to check if the database is set up
+try:
+    from .models import Event
+    DATABASE_READY = True
+except Exception:
+    DATABASE_READY = False
+
+# Choose between regular views and fallback views based on database status
+if DATABASE_READY:
+    urlpatterns = [
+        path('', views.home, name='home'),
+        path('list/', views.event_list, name='event_list'),
+        path('<slug:slug>/', views.event_detail, name='event_detail'),
 
     # Manager routes
     path('manager/dashboard/', manager_views.manager_dashboard, name='manager_dashboard'),
@@ -34,3 +44,28 @@ urlpatterns = [
     path('events/<slug:slug>/review/', views.add_review, name='add_review'),
     # Like functionality removed
 ]
+else:
+    # Fallback urlpatterns when database is not ready
+    urlpatterns = [
+        path('', fallback_views.fallback_event_list, name='home'),
+        path('list/', fallback_views.fallback_event_list, name='event_list'),
+        path('<slug:slug>/', fallback_views.fallback_event_detail, name='event_detail'),
+
+        # All other paths redirect to the fallback event list
+        path('manager/dashboard/', fallback_views.fallback_event_list),
+        path('manager/events/', fallback_views.fallback_event_list),
+        path('manager/events/<slug:slug>/analytics/', fallback_views.fallback_event_list),
+        path('manager/events/create/', fallback_views.fallback_event_list),
+        path('manager/events/<slug:slug>/edit/', fallback_views.fallback_event_list),
+        path('manager/events/<slug:slug>/delete/', fallback_views.fallback_event_list),
+        path('manager/events/<slug:event_slug>/sub-events/create/', fallback_views.fallback_event_list),
+        path('manager/sub-events/<int:sub_event_id>/edit/', fallback_views.fallback_event_list),
+        path('manager/sub-events/<int:sub_event_id>/delete/', fallback_views.fallback_event_list),
+        path('manager/sub-events/<int:sub_event_id>/categories/create/', fallback_views.fallback_event_list),
+        path('manager/categories/<int:category_id>/edit/', fallback_views.fallback_event_list),
+        path('manager/categories/<int:category_id>/delete/', fallback_views.fallback_event_list),
+        path('manager/events/<slug:slug>/gallery/', fallback_views.fallback_event_list),
+        path('manager/events/<slug:slug>/gallery/add/', fallback_views.fallback_event_list),
+        path('manager/gallery/image/<int:image_id>/delete/', fallback_views.fallback_event_list),
+        path('events/<slug:slug>/review/', fallback_views.fallback_event_detail),
+    ]

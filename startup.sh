@@ -5,7 +5,7 @@ echo "=== Running startup script ==="
 
 # Set up the database
 echo "=== Setting up database ==="
-python fix_database.py
+python initialize_database.py
 
 # Create a simple index.html file for testing
 echo "=== Creating test page ==="
