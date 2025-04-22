@@ -1,10 +1,34 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from . import fallback_views
 
+# Try to import the models to check if the database is set up
+try:
+    from django.contrib.auth.models import User
+    DATABASE_READY = True
+except Exception:
+    DATABASE_READY = False
+
+# Define a custom login view that uses fallback if needed
+class SafeLoginView(auth_views.LoginView):
+    def post(self, request, *args, **kwargs):
+        if not DATABASE_READY:
+            fallback_response = fallback_views.fallback_login(request)
+            if fallback_response:
+                return fallback_response
+        return super().post(request, *args, **kwargs)
+
+# Define urlpatterns based on database status
 urlpatterns = [
-    path('register/', views.register, name='register'),
-    path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
+    # Use a custom view for register that checks database status
+    path('register/', lambda request, *args, **kwargs:
+         fallback_views.fallback_register(request) if request.method == 'POST' and not DATABASE_READY
+         else views.register(request, *args, **kwargs),
+         name='register'),
+
+    # Use the custom login view
+    path('login/', SafeLoginView.as_view(template_name='accounts/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),

@@ -7,6 +7,10 @@ echo "=== Running startup script ==="
 echo "=== Setting up database ==="
 python initialize_database.py
 
+# Fix content types specifically
+echo "=== Fixing content types ==="
+python fix_content_types.py
+
 # Create a simple index.html file for testing
 echo "=== Creating test page ==="
 mkdir -p staticfiles

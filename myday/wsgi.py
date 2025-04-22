@@ -20,6 +20,17 @@ try:
     if os.environ.get('RENDER', '') == 'true':
         # Add the project root to the path
         sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+        # First try to fix content types specifically
+        try:
+            from fix_content_types import fix_content_types
+            fix_content_types()
+        except ImportError:
+            print("Content type fix script not found")
+        except Exception as e:
+            print(f"Error fixing content types: {e}")
+
+        # Then run the full database initialization
         try:
             from initialize_database import initialize_database
             initialize_database()
@@ -30,6 +41,10 @@ try:
                 fix_database()
             except ImportError:
                 print("No database initialization script found")
+            except Exception as e:
+                print(f"Error running fix_database: {e}")
+        except Exception as e:
+            print(f"Error running initialize_database: {e}")
 except Exception as e:
     print(f"Error setting up database: {e}")
 
