@@ -2,8 +2,9 @@ services:
   - type: web
     name: myday
     env: python
+    plan: free
     buildCommand: chmod +x build.sh && ./build.sh
-    startCommand: gunicorn myday.wsgi:application
+    startCommand: gunicorn myday.wsgi:application --workers=1 --threads=8 --timeout=0
     envVars:
       - key: DJANGO_DEBUG
         value: False
@@ -15,6 +16,10 @@ services:
         fromDatabase:
           name: myday-db
           property: connectionString
+      - key: PYTHON_VERSION
+        value: 3.9.18
+      - key: WEB_CONCURRENCY
+        value: 1
 
 databases:
   - name: myday-db

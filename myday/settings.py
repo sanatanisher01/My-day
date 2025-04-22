@@ -99,6 +99,12 @@ WSGI_APPLICATION = 'myday.wsgi.application'
 # Use PostgreSQL in production and SQLite in development
 import dj_database_url
 
+# Database optimization settings
+DATABASE_OPTIONS = {
+    'connect_timeout': 30,
+    'options': '-c statement_timeout=30000'
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -109,9 +115,14 @@ DATABASES = {
 # If DATABASE_URL is set, use that for the database configuration
 if 'DATABASE_URL' in os.environ:
     DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600,
+        conn_max_age=500,  # Reduced for free tier
         conn_health_checks=True,
+        ssl_require=False,  # Set to True if your database requires SSL
     )
+
+    # Optimize database for free tier
+    DATABASES['default']['CONN_MAX_AGE'] = 500
+    DATABASES['default']['OPTIONS'] = DATABASE_OPTIONS
 
 
 # Password validation
@@ -158,17 +169,27 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 # WhiteNoise configuration for static files in production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Optimize for free tier
+
+# Cache settings for better performance
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
 # Security settings for production
 if not DEBUG:
-    # HTTPS settings
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = True
+    # HTTPS settings - Commented out for free tier as they can cause issues
+    # SESSION_COOKIE_SECURE = True
+    # CSRF_COOKIE_SECURE = True
+    # SECURE_SSL_REDIRECT = True
 
-    # HSTS settings
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    # HSTS settings - Reduced for free tier
+    SECURE_HSTS_SECONDS = 3600  # 1 hour instead of 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    # SECURE_HSTS_PRELOAD = True  # Commented out for free tier
 
     # Other security settings
     SECURE_CONTENT_TYPE_NOSNIFF = True
