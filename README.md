@@ -23,7 +23,7 @@ MyDay is a comprehensive event booking and management platform built with Django
 
 1. Clone the repository:
    ```
-   git clone <repository-url>
+   git clone https://github.com/sanatanisher01/My-day.git
    cd My-day
    ```
 
@@ -62,32 +62,37 @@ MyDay is a comprehensive event booking and management platform built with Django
 
 ## Deployment to Render
 
-1. Create a new Web Service on Render.
+1. Create a new Web Service on Render:
+   - Connect your GitHub repository
+   - Select the repository: `sanatanisher01/My-day`
+   - Select the branch: `master`
+   - Set the build command to: `chmod +x render_build.sh && ./render_build.sh`
+   - Set the start command to: `chmod +x startup.sh && ./startup.sh gunicorn myday.wsgi:application --workers=1 --threads=8 --timeout=0`
+   - Select the "Free" plan
 
-2. Connect your GitHub repository.
-
-3. Configure the following settings:
-   - **Name**: myday (or your preferred name)
-   - **Environment**: Python
-   - **Region**: Choose the region closest to your users
-   - **Branch**: main (or your deployment branch)
-   - **Build Command**: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
-   - **Start Command**: `gunicorn myday.wsgi:application`
-
-4. Add the following environment variables:
+2. Set Environment Variables:
    - `DJANGO_SECRET_KEY`: Generate a secure random key
    - `DJANGO_DEBUG`: Set to "False"
-   - `ALLOWED_HOSTS`: Your Render domain (e.g., `your-app.onrender.com`)
-   - `DATABASE_URL`: This will be automatically added if you create a PostgreSQL database on Render
+   - `ALLOWED_HOSTS`: Include your Render domain
+   - `RENDER`: Set to "true"
    - `CLOUDINARY_CLOUD_NAME`: Your Cloudinary cloud name
    - `CLOUDINARY_API_KEY`: Your Cloudinary API key
    - `CLOUDINARY_API_SECRET`: Your Cloudinary API secret
    - `EMAIL_HOST_USER`: Your email address
    - `EMAIL_HOST_PASSWORD`: Your email app password
 
-5. Create a PostgreSQL database on Render and link it to your web service.
+3. Create a PostgreSQL Database on Render and link it to your web service.
 
-6. Deploy your application.
+For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+## Quick Deployment
+
+Use the provided deployment scripts:
+
+- On Linux/Mac: `./deploy.sh`
+- On Windows: `deploy.bat`
+
+These scripts will help you push your code to GitHub and provide instructions for deploying to Render.
 
 ## Environment Variables
 
