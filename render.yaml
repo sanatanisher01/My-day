@@ -3,7 +3,7 @@ services:
     name: myday
     env: python
     plan: free
-    buildCommand: chmod +x build.sh && ./build.sh
+    buildCommand: chmod +x render_build.sh && ./render_build.sh
     startCommand: gunicorn myday.wsgi:application --workers=1 --threads=8 --timeout=0
     envVars:
       - key: DJANGO_DEBUG
