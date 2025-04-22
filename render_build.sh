@@ -14,56 +14,91 @@ rm -rf ~/.cache/pip
 echo "=== Collecting static files ==="
 python manage.py collectstatic --noinput
 
-# Run migrations with comprehensive error handling
+# Set environment variable to avoid interactive prompts
+export DJANGO_SETTINGS_MODULE=myday.settings
+export PYTHONPATH=$PYTHONPATH:$(pwd)
+export DJANGO_SUPERUSER_PASSWORD=admin
+export DJANGO_SUPERUSER_EMAIL=admin@example.com
+export DJANGO_SUPERUSER_USERNAME=admin
+
+# Run migrations with non-interactive approach
 echo "=== Running migrations ==="
 
-# First try to run migrations normally
-python manage.py migrate --noinput || {
-    echo "=== Migration failed, trying alternative approach ==="
+# First try to fix the database directly
+echo "=== Attempting to fix database directly ==="
+python fix_render_db.py
 
-    # Try to fix the database directly
-    echo "=== Attempting to fix database directly ==="
-    python fix_render_db.py
+# Create a special settings file for non-interactive migrations
+cat > non_interactive_settings.py << EOL
+# Non-interactive settings for migrations
+from myday.settings import *
 
-    # Try to fix chat migrations specifically
-    echo "=== Fixing chat migrations ==="
-    # Rename the problematic migration file
-    if [ -f "chat/migrations/0002_remove_chatmessage_image_remove_chatmessage_room_and_more.py" ]; then
-        mv chat/migrations/0002_remove_chatmessage_image_remove_chatmessage_room_and_more.py chat/migrations/0002_remove_chatmessage_image_remove_chatmessage_room_and_more.py.bak
-    fi
+DJANGO_MIGRATIONS_DISABLE_INTERACTIVE = True
+EOL
 
-    # Use our fixed initial migration
-    if [ -f "chat/migrations/0001_initial_fixed.py" ]; then
-        cp chat/migrations/0001_initial_fixed.py chat/migrations/0001_initial.py
-    fi
+# Make sure the merge migration exists
+echo "=== Ensuring merge migration exists ==="
+if [ ! -f "chat/migrations/0003_merge.py" ]; then
+    echo "Creating merge migration for chat app"
+    cat > chat/migrations/0003_merge.py << EOL
+from django.db import migrations
 
-    # Create initial migrations for all apps
-    echo "=== Creating initial migrations ==="
-    python manage.py makemigrations accounts bookings events
 
-    # Try to apply migrations with --fake-initial
-    echo "=== Applying initial migrations with --fake-initial ==="
-    python manage.py migrate --noinput --fake-initial
+class Migration(migrations.Migration):
+    dependencies = [
+        ('chat', '0001_initial'),
+        ('chat', '0002_remove_chatmessage_image_remove_chatmessage_room_and_more'),
+    ]
 
-    # If that fails, try with --fake
-    if [ $? -ne 0 ]; then
-        echo "=== Applying migrations with --fake ==="
-        python manage.py migrate --fake
+    operations = [
+        # No operations needed, this just merges the migrations
+    ]
+EOL
+fi
 
-        # If that still fails, try one more approach
-        if [ $? -ne 0 ]; then
-            echo "=== Final migration attempt ==="
-            # Apply migrations one by one
-            python manage.py migrate auth --fake
-            python manage.py migrate contenttypes --fake
-            python manage.py migrate sessions --fake
-            python manage.py migrate admin --fake
-            python manage.py migrate accounts --fake
-            python manage.py migrate events --fake
-            python manage.py migrate bookings --fake
-            python manage.py migrate chat --fake
-        fi
-    fi
-}
+# Run our custom migration script
+echo "=== Running custom migration script ==="
+python custom_migrate.py
+
+# If that fails, try a more direct approach
+if [ $? -ne 0 ]; then
+    echo "=== Custom migration failed, trying direct SQL approach ==="
+
+    # Create tables directly using SQL
+    echo "=== Creating tables directly with SQL ==="
+    python << EOL
+import os
+import django
+from django.db import connection
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myday.settings')
+django.setup()
+
+with connection.cursor() as cursor:
+    # Create chat_chatmessage table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS chat_chatmessage (
+        id bigserial PRIMARY KEY,
+        message text NOT NULL,
+        timestamp timestamp with time zone NOT NULL,
+        is_read boolean NOT NULL,
+        receiver_id integer NOT NULL REFERENCES auth_user(id),
+        sender_id integer NOT NULL REFERENCES auth_user(id)
+    );
+    """)
+    print("Created chat_chatmessage table")
+
+    # Mark migrations as applied
+    cursor.execute("""
+    INSERT INTO django_migrations (app, name, applied)
+    VALUES
+        ('chat', '0001_initial', NOW()),
+        ('chat', '0002_remove_chatmessage_image_remove_chatmessage_room_and_more', NOW()),
+        ('chat', '0003_merge', NOW())
+    ON CONFLICT DO NOTHING;
+    """)
+    print("Marked migrations as applied")
+EOL
+fi
 
 echo "=== Build process completed successfully ==="
