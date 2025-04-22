@@ -36,25 +36,9 @@ from myday.settings import *
 DJANGO_MIGRATIONS_DISABLE_INTERACTIVE = True
 EOL
 
-# Make sure the merge migration exists
-echo "=== Ensuring merge migration exists ==="
-if [ ! -f "chat/migrations/0003_merge.py" ]; then
-    echo "Creating merge migration for chat app"
-    cat > chat/migrations/0003_merge.py << EOL
-from django.db import migrations
-
-
-class Migration(migrations.Migration):
-    dependencies = [
-        ('chat', '0001_initial'),
-        ('chat', '0002_remove_chatmessage_image_remove_chatmessage_room_and_more'),
-    ]
-
-    operations = [
-        # No operations needed, this just merges the migrations
-    ]
-EOL
-fi
+# Reset chat migrations completely
+echo "=== Resetting chat migrations ==="
+python reset_chat_migrations.py
 
 # Run our custom migration script
 echo "=== Running custom migration script ==="
