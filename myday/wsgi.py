@@ -20,8 +20,8 @@ try:
     if os.environ.get('RENDER', '') == 'true':
         # Add the project root to the path
         sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        from setup_database import setup_database
-        setup_database()
+        from fix_database import fix_database
+        fix_database()
 except Exception as e:
     print(f"Error setting up database: {e}")
 

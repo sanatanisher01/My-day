@@ -70,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'myday.middleware.ErrorHandlingMiddleware',  # Custom error handling middleware
 ]
 
 ROOT_URLCONF = 'myday.urls'
