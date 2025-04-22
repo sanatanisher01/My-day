@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Contact Us - MyDay{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-container {
+        padding: 80px 0;
+        background-color: var(--neutral-light);
+    }
+
+    .contact-card {
+        border: none;
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .contact-card:hover {
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .contact-header {
+        background: linear-gradient(135deg, var(--primary), var(--tertiary));
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .contact-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+        z-index: 1;
+    }
+
+    .contact-header h2 {
+        color: white;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .contact-header p {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .contact-body {
+        padding: 2.5rem;
+    }
+
+    .contact-info {
+        margin-bottom: 2rem;
+    }
+
+    .contact-info-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+
+    .contact-info-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .contact-info-text {
+        flex: 1;
+    }
+
+    .contact-info-text h5 {
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+        color: var(--neutral-dark);
+    }
+
+    .contact-info-text p {
+        color: var(--neutral-medium);
+        margin-bottom: 0;
+    }
+
+    .manager-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .manager-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .manager-card-header {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        padding: 1rem;
+        color: white;
+    }
+
+    .manager-card-body {
+        padding: 1rem;
+        background-color: white;
+    }
+
+    .manager-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid white;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-submit-btn {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        border-radius: var(--border-radius-sm);
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(58, 134, 255, 0.3);
+    }
+
+    .form-submit-btn:hover {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(58, 134, 255, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contact-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="contact-card" data-aos="fade-up" data-aos-duration="1000">
+                    <div class="contact-header">
+                        <h2>Contact Us</h2>
+                        <p>Have questions or need assistance? We're here to help!</p>
+                    </div>
+                    <div class="contact-body">
+                        <div class="row">
+                            <div class="col-lg-7">
+                                <form method="POST" class="mb-4">
+                                    {% csrf_token %}
+                                    {{ form|crispy }}
+                                    <button type="submit" class="btn btn-primary form-submit-btn w-100 mt-3">
+                                        <i class="fas fa-paper-plane me-2"></i> Send Message
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="contact-info">
+                                    <h4 class="mb-4">Contact Information</h4>
+
+                                    <div class="contact-info-item">
+                                        <div class="contact-info-icon">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </div>
+                                        <div class="contact-info-text">
+                                            <h5>Address</h5>
+                                            <p>GLA University, Mathura</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="contact-info-item">
+                                        <div class="contact-info-icon">
+                                            <i class="fas fa-phone-alt"></i>
+                                        </div>
+                                        <div class="contact-info-text">
+                                            <h5>Phone</h5>
+                                            <p>+91 6397664902</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="contact-info-item">
+                                        <div class="contact-info-icon">
+                                            <i class="fas fa-envelope"></i>
+                                        </div>
+                                        <div class="contact-info-text">
+                                            <h5>Email</h5>
+                                            <p>sanataniaryan010@gmail.com</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="contact-info-item">
+                                        <div class="contact-info-icon">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        <div class="contact-info-text">
+                                            <h5>Business Hours</h5>
+                                            <p>Monday - Friday: 9am to 5pm<br>Saturday: 10am to 2pm</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% if managers %}
+                                <div class="managers-section mt-4">
+                                    <h4 class="mb-3">Our Managers</h4>
+                                    {% for manager in managers %}
+                                    <div class="manager-card">
+                                        <div class="manager-card-body d-flex align-items-center">
+                                            {% if manager.profile.profile_picture %}
+                                            <img src="{{ manager.profile.profile_picture.url }}" alt="{{ manager.get_full_name }}" class="manager-avatar me-3">
+                                            {% else %}
+                                            <div class="manager-avatar me-3 d-flex align-items-center justify-content-center bg-primary text-white">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            {% endif %}
+                                            <div>
+                                                <h5 class="mb-1">{{ manager.get_full_name|default:manager.username }}</h5>
+                                                <p class="text-muted mb-0"><i class="fas fa-envelope me-1"></i> {{ manager.email }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Map Section -->
+<div class="map-section">
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <div class="col-12">
+                <div class="map-container" style="height: 400px;">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3549.400553850174!2d77.58046507497855!3d27.60457167622285!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39736ce47bffc039%3A0xfe5fc3da92c6341!2sGLA%20University!5e0!3m2!1sen!2sin!4v1713767008332!5m2!1sen!2sin" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

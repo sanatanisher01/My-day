@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="60px" height="60px" viewBox="0 0 60 60" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g id="MyDay-Favicon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="Circle" fill="#4361EE" cx="30" cy="30" r="30"></circle>
+        <path d="M26,20 L26,40 L34,40 L34,20 L26,20 Z M18,20 L18,40 L22,40 L22,20 L18,20 Z M38,20 L38,40 L42,40 L42,20 L38,20 Z" id="Calendar" fill="#FFFFFF"></path>
+    </g>
+</svg>

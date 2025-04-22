@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register - MyDay{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 250px);
+        display: flex;
+        align-items: center;
+    }
+
+    .auth-card {
+        border: none;
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .auth-card:hover {
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .auth-header {
+        background: linear-gradient(135deg, var(--secondary), var(--tertiary));
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+        z-index: 1;
+    }
+
+    .auth-header h3 {
+        color: white;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .auth-header p {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .auth-body {
+        padding: 2.5rem;
+    }
+
+    .auth-form .form-control {
+        border-radius: var(--border-radius-sm);
+        padding: 0.75rem 1rem;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .auth-form .form-control:focus {
+        box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+        border-color: var(--primary);
+        background-color: white;
+    }
+
+    .auth-form label {
+        font-weight: 600;
+        color: var(--neutral-dark);
+    }
+
+    .auth-btn {
+        border-radius: var(--border-radius-sm);
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(58, 134, 255, 0.3);
+    }
+
+    .auth-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(58, 134, 255, 0.4);
+    }
+
+
+
+    .auth-footer {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        text-align: center;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .auth-footer p {
+        margin-bottom: 0;
+        color: var(--neutral-medium);
+    }
+
+    .auth-footer a {
+        color: var(--primary);
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .auth-footer a:hover {
+        color: var(--primary-dark);
+        text-decoration: none;
+    }
+
+    .benefits-list {
+        margin-top: 2rem;
+    }
+
+    .benefits-list h5 {
+        color: var(--neutral-dark);
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .benefit-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--secondary-light), var(--secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+        color: white;
+    }
+
+    .benefit-text {
+        flex: 1;
+    }
+
+    .benefit-text h6 {
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+    }
+
+    .benefit-text p {
+        color: var(--neutral-medium);
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+
+    .auth-illustration {
+        display: none;
+    }
+
+    @media (min-width: 992px) {
+        .auth-illustration {
+            display: block;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .auth-illustration img {
+            max-width: 100%;
+            height: auto;
+            max-height: 400px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="auth-card" data-aos="fade-up" data-aos-duration="1000">
+                    <div class="row g-0">
+                        <div class="col-lg-6 order-lg-2">
+                            <div class="auth-header">
+                                <h3>Create an Account</h3>
+                                <p>Join MyDay and start booking amazing events</p>
+                            </div>
+                            <div class="auth-body">
+
+
+                                <form method="POST" class="auth-form">
+                                    {% csrf_token %}
+                                    {{ form|crispy }}
+                                    <div class="form-check mb-4">
+                                        <input class="form-check-input" type="checkbox" id="terms-check" required>
+                                        <label class="form-check-label" for="terms-check">
+                                            I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 auth-btn">Create Account</button>
+                                </form>
+                            </div>
+                            <div class="auth-footer">
+                                <p>Already have an account? <a href="{% url 'login' %}">Sign In</a></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 order-lg-1 d-none d-lg-block">
+                            <div class="auth-illustration">
+                                <div class="benefits-list p-4">
+                                    <h5>Why Join MyDay?</h5>
+
+                                    <div class="benefit-item">
+                                        <div class="benefit-icon">
+                                            <i class="fas fa-calendar-check"></i>
+                                        </div>
+                                        <div class="benefit-text">
+                                            <h6>Easy Event Booking</h6>
+                                            <p>Browse and book events with just a few clicks</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="benefit-item">
+                                        <div class="benefit-icon">
+                                            <i class="fas fa-percent"></i>
+                                        </div>
+                                        <div class="benefit-text">
+                                            <h6>Exclusive Discounts</h6>
+                                            <p>Get access to member-only deals and offers</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="benefit-item">
+                                        <div class="benefit-icon">
+                                            <i class="fas fa-bell"></i>
+                                        </div>
+                                        <div class="benefit-text">
+                                            <h6>Event Notifications</h6>
+                                            <p>Never miss an event with timely reminders</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="benefit-item">
+                                        <div class="benefit-icon">
+                                            <i class="fas fa-comments"></i>
+                                        </div>
+                                        <div class="benefit-text">
+                                            <h6>Direct Communication</h6>
+                                            <p>Chat with event organizers for any queries</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

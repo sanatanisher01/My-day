@@ -1,0 +1,29 @@
+/* Footer spacing fix */
+.cta-section {
+    margin-bottom: 0 !important;
+    padding-bottom: 80px !important;
+}
+
+main {
+    padding-bottom: 0 !important;
+}
+
+footer {
+    margin-top: 0 !important;
+}
+
+/* Fix for any potential gaps */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+/* Ensure no white space between sections */
+section:last-of-type {
+    margin-bottom: 0 !important;
+}

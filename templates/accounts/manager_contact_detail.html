@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ title }} - MyDay{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-detail-container {
+        padding: 30px 0;
+    }
+
+    .contact-detail-card {
+        border-radius: var(--border-radius-lg);
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .contact-detail-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--primary), var(--tertiary));
+        color: white;
+        position: relative;
+    }
+
+    .contact-detail-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+        z-index: 1;
+    }
+
+    .contact-detail-header h2 {
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .contact-detail-header p {
+        margin-bottom: 0;
+        opacity: 0.8;
+        position: relative;
+        z-index: 2;
+    }
+
+    .contact-detail-body {
+        padding: 1.5rem;
+    }
+
+    .contact-detail-footer {
+        padding: 1.5rem;
+        background-color: rgba(0, 0, 0, 0.02);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .contact-meta {
+        margin-bottom: 2rem;
+    }
+
+    .contact-meta-item {
+        display: flex;
+        margin-bottom: 0.75rem;
+    }
+
+    .contact-meta-label {
+        width: 120px;
+        font-weight: 600;
+        color: var(--neutral-dark);
+    }
+
+    .contact-meta-value {
+        flex: 1;
+        color: var(--neutral-medium);
+    }
+
+    .contact-message-box {
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--primary);
+    }
+
+    .contact-message-content {
+        white-space: pre-line;
+        color: var(--neutral-dark);
+    }
+
+    .status-badge {
+        padding: 0.35rem 0.65rem;
+        border-radius: 50rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+
+    .status-pending {
+        background-color: rgba(255, 193, 7, 0.15);
+        color: #e6a700;
+    }
+
+    .status-in_progress {
+        background-color: rgba(13, 110, 253, 0.15);
+        color: #0b5ed7;
+    }
+
+    .status-resolved {
+        background-color: rgba(25, 135, 84, 0.15);
+        color: #157347;
+    }
+
+    .status-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .reply-form {
+        margin-top: 2rem;
+    }
+
+    .reply-form textarea {
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        min-height: 150px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contact-detail-container">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">Contact Message Details</h1>
+            <div>
+                <a href="{% url 'manager_contacts' %}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-list me-2"></i> All Messages
+                </a>
+                <a href="{% url 'manager_dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="contact-detail-card">
+                    <div class="contact-detail-header">
+                        <h2>{{ contact.subject }}</h2>
+                        <p>From: {{ contact.name }} ({{ contact.email }})</p>
+                    </div>
+
+                    <div class="contact-detail-body">
+                        <div class="contact-meta">
+                            <div class="contact-meta-item">
+                                <div class="contact-meta-label">Status:</div>
+                                <div class="contact-meta-value">
+                                    <span class="status-badge status-{{ contact.status }}">
+                                        {{ contact.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="contact-meta-item">
+                                <div class="contact-meta-label">Received:</div>
+                                <div class="contact-meta-value">{{ contact.created_at|date:"F j, Y, g:i a" }} ({{ contact.created_at|naturaltime }})</div>
+                            </div>
+
+                            <div class="contact-meta-item">
+                                <div class="contact-meta-label">Last Updated:</div>
+                                <div class="contact-meta-value">{{ contact.updated_at|date:"F j, Y, g:i a" }}</div>
+                            </div>
+
+                            {% if contact.user %}
+                            <div class="contact-meta-item">
+                                <div class="contact-meta-label">User Account:</div>
+                                <div class="contact-meta-value">
+                                    <a href="{% url 'admin:auth_user_change' contact.user.id %}" target="_blank">
+                                        {{ contact.user.username }}
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div class="contact-meta-item">
+                                <div class="contact-meta-label">Message ID:</div>
+                                <div class="contact-meta-value">#{{ contact.id }}</div>
+                            </div>
+                        </div>
+
+                        <h5>Message:</h5>
+                        <div class="contact-message-box">
+                            <div class="contact-message-content">{{ contact.message }}</div>
+                        </div>
+
+                        {% if contact.response_message %}
+                        <div class="mt-4">
+                            <h5>Previous Response:</h5>
+                            <div class="contact-message-box" style="border-left: 4px solid var(--success);">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <small class="text-muted">Responded by: {{ contact.responded_by.get_full_name|default:contact.responded_by.username }}</small>
+                                    <small class="text-muted">{{ contact.response_date|date:"F j, Y, g:i a" }}</small>
+                                </div>
+                                <div class="contact-message-content">{{ contact.response_message }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <form method="POST" class="reply-form">
+                            {% csrf_token %}
+                            <h5>Reply to {{ contact.name }}:</h5>
+                            <div class="mb-3">
+                                <textarea name="reply" class="form-control" placeholder="Type your reply here..."></textarea>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="status-actions">
+                                    <button type="submit" name="status" value="pending" class="btn btn-sm btn-warning" {% if contact.status == 'pending' %}disabled{% endif %}>
+                                        Mark as Pending
+                                    </button>
+                                    <button type="submit" name="status" value="in_progress" class="btn btn-sm btn-primary" {% if contact.status == 'in_progress' %}disabled{% endif %}>
+                                        Mark as In Progress
+                                    </button>
+                                    <button type="submit" name="status" value="resolved" class="btn btn-sm btn-success" {% if contact.status == 'resolved' %}disabled{% endif %}>
+                                        Mark as Resolved
+                                    </button>
+                                </div>
+                                <button type="submit" name="send_reply" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i> Send Reply
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="mailto:{{ contact.email }}?subject=Re: {{ contact.subject }}" class="btn btn-outline-primary">
+                                <i class="fas fa-envelope me-2"></i> Email {{ contact.name }}
+                            </a>
+                            {% if contact.user %}
+                            <a href="{% url 'admin:auth_user_change' contact.user.id %}" target="_blank" class="btn btn-outline-secondary">
+                                <i class="fas fa-user me-2"></i> View User Profile
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'admin:accounts_contact_change' contact.id %}" target="_blank" class="btn btn-outline-dark">
+                                <i class="fas fa-cog me-2"></i> Edit in Admin
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Contact Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Name:</strong> {{ contact.name }}</p>
+                        <p><strong>Email:</strong> <a href="mailto:{{ contact.email }}">{{ contact.email }}</a></p>
+                        {% if contact.user %}
+                        <p>
+                            <strong>User:</strong> {{ contact.user.username }}<br>
+                            <small class="text-muted">Registered: {{ contact.user.date_joined|date:"M d, Y" }}</small>
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
